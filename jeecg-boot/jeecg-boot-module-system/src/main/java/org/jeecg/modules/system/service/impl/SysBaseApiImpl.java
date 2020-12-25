@@ -8,9 +8,7 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.google.common.base.Joiner;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.jeecg.common.api.dto.OnlineAuthDTO;
 import org.jeecg.common.api.dto.message.*;
@@ -21,7 +19,6 @@ import org.jeecg.common.constant.DataBaseConstant;
 import org.jeecg.common.constant.WebsocketConst;
 import org.jeecg.common.exception.JeecgBootException;
 import org.jeecg.common.system.api.ISysBaseAPI;
-import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.vo.*;
 import org.jeecg.common.util.SysAnnmentTypeEnum;
 import org.jeecg.common.util.YouBianCodeUtil;
@@ -31,8 +28,9 @@ import org.jeecg.modules.message.service.ISysMessageTemplateService;
 import org.jeecg.modules.message.websocket.WebSocket;
 import org.jeecg.modules.system.entity.*;
 import org.jeecg.modules.system.mapper.*;
-import org.jeecg.modules.system.service.*;
-import org.jeecg.modules.system.util.SecurityUtil;
+import org.jeecg.modules.system.service.ISysDepartService;
+import org.jeecg.modules.system.service.ISysPermissionDataRuleService;
+import org.jeecg.modules.system.service.ISysUserDepartService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -50,7 +48,7 @@ import java.util.*;
 /**
  * @Description: 底层共通业务API，提供其他独立模块调用
  * @Author: scott
- * @Date:2019-4-20 
+ * @Date:2019-4-20
  * @Version:V1.0
  */
 @Slf4j
@@ -68,8 +66,6 @@ public class SysBaseApiImpl implements ISysBaseAPI {
 	private SysUserRoleMapper sysUserRoleMapper;
 	@Autowired
 	private ISysDepartService sysDepartService;
-	@Autowired
-	private ISysDictService sysDictService;
 	@Resource
 	private SysAnnouncementMapper sysAnnouncementMapper;
 	@Resource
@@ -80,11 +76,6 @@ public class SysBaseApiImpl implements ISysBaseAPI {
 	private SysRoleMapper roleMapper;
 	@Resource
 	private SysDepartMapper departMapper;
-	@Resource
-	private SysCategoryMapper categoryMapper;
-
-	@Autowired
-	private ISysDataSourceService dataSourceService;
 	@Autowired
 	private ISysUserDepartService sysUserDepartService;
 	@Resource
@@ -105,16 +96,6 @@ public class SysBaseApiImpl implements ISysBaseAPI {
 		}
 		BeanUtils.copyProperties(sysUser, loginUser);
 		return loginUser;
-	}
-
-	@Override
-	public String translateDictFromTable(String table, String text, String code, String key) {
-		return sysDictService.queryTableDictTextByKey(table, text, code, key);
-	}
-
-	@Override
-	public String translateDict(String code, String key) {
-		return sysDictService.queryDictTextByKey(code, key);
 	}
 
 	@Override
@@ -261,27 +242,6 @@ public class SysBaseApiImpl implements ISysBaseAPI {
 		SysDepart depart = departMapper.getParentDepartId(departId);
 		DictModel model = new DictModel(depart.getId(),depart.getParentId());
 		return model;
-	}
-
-	@Override
-	@Cacheable(value = CacheConstant.SYS_DICT_CACHE,key = "#code")
-	public List<DictModel> queryDictItemsByCode(String code) {
-		return sysDictService.queryDictItemsByCode(code);
-	}
-
-	@Override
-	public List<DictModel> queryTableDictItemsByCode(String table, String text, String code) {
-		//update-begin-author:taoyan date:20200820 for:【Online+系统】字典表加权限控制机制逻辑，想法不错 LOWCOD-799
-		if(table.indexOf("#{")>=0){
-			table = QueryGenerator.getSqlRuleValue(table);
-		}
-		//update-end-author:taoyan date:20200820 for:【Online+系统】字典表加权限控制机制逻辑，想法不错 LOWCOD-799
-		return sysDictService.queryTableDictItemsByCode(table, text, code);
-	}
-
-	@Override
-	public List<DictModel> queryAllDepartBackDictModel() {
-		return sysDictService.queryAllDepartBackDictModel();
 	}
 
 	@Override
@@ -501,38 +461,6 @@ public class SysBaseApiImpl implements ISysBaseAPI {
 	}
 
 	@Override
-	public List<DictModel> queryAllDict() {
-		// 查询并排序
-		QueryWrapper<SysDict> queryWrapper = new QueryWrapper<SysDict>();
-		queryWrapper.orderByAsc("create_time");
-		List<SysDict> dicts = sysDictService.list(queryWrapper);
-		// 封装成 model
-		List<DictModel> list = new ArrayList<DictModel>();
-		for (SysDict dict : dicts) {
-			list.add(new DictModel(dict.getDictCode(), dict.getDictName()));
-		}
-
-		return list;
-	}
-
-	@Override
-	public List<SysCategoryModel> queryAllDSysCategory() {
-		List<SysCategory> ls = categoryMapper.selectList(null);
-		List<SysCategoryModel> res = oConvertUtils.entityListToModelList(ls,SysCategoryModel.class);
-		return res;
-	}
-
-	@Override
-	public List<DictModel> queryFilterTableDictInfo(String table, String text, String code, String filterSql) {
-		return sysDictService.queryTableDictItemsByCodeAndFilter(table,text,code,filterSql);
-	}
-
-	@Override
-	public List<String> queryTableDictByKeys(String table, String text, String code, String[] keyArray) {
-		return sysDictService.queryTableDictByKeys(table,text,code,Joiner.on(",").join(keyArray));
-	}
-
-	@Override
 	public List<ComboModel> queryAllUserBackCombo() {
 		List<ComboModel> list = new ArrayList<ComboModel>();
 		List<SysUser> userList = userMapper.selectList(new QueryWrapper<SysUser>().eq("status",1).eq("del_flag",0));
@@ -628,28 +556,6 @@ public class SysBaseApiImpl implements ISysBaseAPI {
 			departModelList.add(model);
 		}
 		return departModelList;
-	}
-
-	@Override
-	public DynamicDataSourceModel getDynamicDbSourceById(String dbSourceId) {
-		SysDataSource dbSource = dataSourceService.getById(dbSourceId);
-		if(dbSource!=null && StringUtils.isNotBlank(dbSource.getDbPassword())){
-			String dbPassword = dbSource.getDbPassword();
-			String decodedStr = SecurityUtil.jiemi(dbPassword);
-			dbSource.setDbPassword(decodedStr);
-		}
-		return new DynamicDataSourceModel(dbSource);
-	}
-
-	@Override
-	public DynamicDataSourceModel getDynamicDbSourceByCode(String dbSourceCode) {
-		SysDataSource dbSource = dataSourceService.getOne(new LambdaQueryWrapper<SysDataSource>().eq(SysDataSource::getCode, dbSourceCode));
-		if(dbSource!=null && StringUtils.isNotBlank(dbSource.getDbPassword())){
-			String dbPassword = dbSource.getDbPassword();
-			String decodedStr = SecurityUtil.jiemi(dbPassword);
-			dbSource.setDbPassword(decodedStr);
-		}
-		return new DynamicDataSourceModel(dbSource);
 	}
 
 	@Override

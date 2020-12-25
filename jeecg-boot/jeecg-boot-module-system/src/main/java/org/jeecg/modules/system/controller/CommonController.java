@@ -156,43 +156,6 @@ public class CommonController {
         return "";
     }
 
-//	@PostMapping(value = "/upload2")
-//	public Result<?> upload2(HttpServletRequest request, HttpServletResponse response) {
-//		Result<?> result = new Result<>();
-//		try {
-//			String ctxPath = uploadpath;
-//			String fileName = null;
-//			String bizPath = "files";
-//			String tempBizPath = request.getParameter("biz");
-//			if(oConvertUtils.isNotEmpty(tempBizPath)){
-//				bizPath = tempBizPath;
-//			}
-//			String nowday = new SimpleDateFormat("yyyyMMdd").format(new Date());
-//			File file = new File(ctxPath + File.separator + bizPath + File.separator + nowday);
-//			if (!file.exists()) {
-//				file.mkdirs();// 创建文件根目录
-//			}
-//			MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
-//			MultipartFile mf = multipartRequest.getFile("file");// 获取上传文件对象
-//			String orgName = mf.getOriginalFilename();// 获取文件名
-//			fileName = orgName.substring(0, orgName.lastIndexOf(".")) + "_" + System.currentTimeMillis() + orgName.substring(orgName.indexOf("."));
-//			String savePath = file.getPath() + File.separator + fileName;
-//			File savefile = new File(savePath);
-//			FileCopyUtils.copy(mf.getBytes(), savefile);
-//			String dbpath = bizPath + File.separator + nowday + File.separator + fileName;
-//			if (dbpath.contains("\\")) {
-//				dbpath = dbpath.replace("\\", "/");
-//			}
-//			result.setMessage(dbpath);
-//			result.setSuccess(true);
-//		} catch (IOException e) {
-//			result.setSuccess(false);
-//			result.setMessage(e.getMessage());
-//			log.error(e.getMessage(), e);
-//		}
-//		return result;
-//	}
-
     /**
      * 预览图片&下载文件
      * 请求地址：http://localhost:8080/common/static/{user/20190119/e1fe9925bc315c60addea1b98eb1cb1349547719_1547866868179.jpg}

@@ -81,63 +81,11 @@ public interface ISysBaseAPI extends CommonAPI {
     List<String> getDepartNamesByUsername(String username);
 
     /**
-     * 10获取数据字典
-     * @param code
-     * @return
-     */
-    public List<DictModel> queryDictItemsByCode(String code);
-
-    /** 11查询所有的父级字典，按照create_time排序 */
-    public List<DictModel> queryAllDict();
-
-    /**
-     * 12查询所有分类字典
-     * @return
-     */
-    public List<SysCategoryModel> queryAllDSysCategory();
-
-    /**
-     * 13获取表数据字典
-     * @param table
-     * @param text
-     * @param code
-     * @return
-     */
-    List<DictModel> queryTableDictItemsByCode(String table, String text, String code);
-
-    /**
-     * 14查询所有部门 作为字典信息 id -->value,departName -->text
-     * @return
-     */
-    public List<DictModel> queryAllDepartBackDictModel();
-
-    /**
      * 15根据业务类型及业务id修改消息已读
      * @param busType
      * @param busId
      */
     public void updateSysAnnounReadFlag(String busType, String busId);
-
-    /**
-     * 16查询表字典 支持过滤数据
-     * @param table
-     * @param text
-     * @param code
-     * @param filterSql
-     * @return
-     */
-    public List<DictModel> queryFilterTableDictInfo(String table, String text, String code, String filterSql);
-
-    /**
-     * 17查询指定table的 text code 获取字典，包含text和value
-     * @param table
-     * @param text
-     * @param code
-     * @param keyArray
-     * @return
-     */
-    @Deprecated
-    public List<String> queryTableDictByKeys(String table, String text, String code, String[] keyArray);
 
     /**
      * 18查询所有用户 返回ComboModel
