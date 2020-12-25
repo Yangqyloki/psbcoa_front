@@ -85,12 +85,6 @@
 
       <a-form-item>
         <a-checkbox v-decorator="['rememberMe', {initialValue: true, valuePropName: 'checked'}]" >自动登录</a-checkbox>
-        <router-link :to="{ name: 'alteration'}" class="forge-password" style="float: right;">
-          忘记密码
-        </router-link>
-       <router-link :to="{ name: 'register'}" class="forge-password" style="float: right;margin-right: 10px" >
-          注册账户
-        </router-link>
       </a-form-item>
 
       <a-form-item style="margin-top:24px">
@@ -106,35 +100,23 @@
       </a-form-item>
     </a-form>
 
-    <two-step-captcha
-      v-if="requiredTwoStepCaptcha"
-      :visible="stepCaptchaVisible"
-      @success="stepCaptchaSuccess"
-      @cancel="stepCaptchaCancel"></two-step-captcha>
     <login-select-tenant ref="loginSelect" @success="loginSelectOk"></login-select-tenant>
-    <third-login ref="thirdLogin"></third-login>
   </div>
 </template>
 
 <script>
   //import md5 from "md5"
   import api from '@/api'
-  import TwoStepCaptcha from '@/components/tools/TwoStepCaptcha'
   import { mapActions } from "vuex"
   import { timeFix } from "@/utils/util"
   import Vue from 'vue'
   import { ACCESS_TOKEN ,ENCRYPTED_STRING} from "@/store/mutation-types"
   import { putAction,postAction,getAction } from '@/api/manage'
   import { encryption , getEncryptedString } from '@/utils/encryption/aesEncrypt'
-  import store from '@/store/'
-  import { USER_INFO } from "@/store/mutation-types"
-  import ThirdLogin from './third/ThirdLogin'
   import LoginSelectTenant from "./LoginSelectTenant";
   export default {
     components: {
-      LoginSelectTenant,
-      TwoStepCaptcha,
-      ThirdLogin
+      LoginSelectTenant
     },
     data () {
       return {

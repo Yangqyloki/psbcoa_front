@@ -74,21 +74,6 @@
           </a-input-search>
         </a-form-item>
 
-        <!--租户分配-->
-        <a-form-item label="租户分配" :labelCol="labelCol" :wrapperCol="wrapperCol" v-show="!departDisabled">
-
-          <a-select
-            mode="multiple"
-            style="width: 100%"
-            placeholder="请选择租户分配"
-            :disabled="disableSubmit"
-            v-model="currentTenant">
-            <a-select-option v-for="(item, index) in tenantList" :key="index" :value="item.id">
-              {{ item.name }}
-            </a-select-option>
-          </a-select>
-        </a-form-item>
-
        <!-- update--begin--autor:wangshuai-----date:20200108------for：新增身份和负责部门------ -->
         <a-form-item label="身份" :labelCol="labelCol" :wrapperCol="wrapperCol">
           <a-radio-group
@@ -270,18 +255,15 @@
           userWithDepart: "/sys/user/userDepartList", // 引入为指定用户查看部门信息需要的url
           userId:"/sys/user/generateUserId", // 引入生成添加用户情况下的url
           syncUserByUserName:"/act/process/extActProcess/doSyncUserByUserName",//同步用户到工作流
-          queryTenantList: '/sys/tenant/queryList'
         },
         identity:"1",
         fileList:[],
-        tenantList: [],
         currentTenant:[]
       }
     },
     created () {
       const token = Vue.ls.get(ACCESS_TOKEN);
       this.headers = {"X-Access-Token":token}
-      this.initTenantList()
 
     },
     computed:{
@@ -292,13 +274,6 @@
     methods: {
       isDisabledAuth(code){
         return disabledAuthFilter(code);
-      },
-      initTenantList(){
-        getAction(this.url.queryTenantList).then(res=>{
-          if(res.success){
-            this.tenantList = res.result
-          }
-        })
       },
       //窗口最大化切换
       toggleScreen(){
